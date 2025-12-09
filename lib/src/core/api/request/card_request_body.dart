@@ -42,9 +42,9 @@ class CardRequestBody {
   CardRequestBody(Charge charge, this.authKeys)
       : _last4 = charge.card!.last4Digits,
         _email = charge.email,
-        _amount = charge.amount.toString(),
+        _amount = (charge.amount / 100).toStringAsFixed(2),
         _reference = charge.reference,
-        _transactionCharge = charge.transactionCharge != null && charge.transactionCharge! > 0 ? charge.transactionCharge.toString() : null,
+        _transactionCharge = charge.transactionCharge != null && charge.transactionCharge! > 0 ? (charge.transactionCharge! / 100).toStringAsFixed(2) : null,
         _metadata = charge.metadata,
         _plan = charge.plan,
         _card = charge.card,
