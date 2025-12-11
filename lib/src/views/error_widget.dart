@@ -16,7 +16,8 @@ class ErrorWidget extends StatefulWidget {
   }
 }
 
-class _SuccessfulWidgetState extends State<ErrorWidget> with TickerProviderStateMixin {
+class _SuccessfulWidgetState extends State<ErrorWidget>
+    with TickerProviderStateMixin {
   final sizedBox = const SizedBox(height: 20.0);
   late AnimationController _mainController;
   late AnimationController _opacityController;
@@ -40,9 +41,11 @@ class _SuccessfulWidgetState extends State<ErrorWidget> with TickerProviderState
       duration: const Duration(seconds: kStartValue),
     );
     _countdownController.addListener(() => setState(() {}));
-    _countdownAnim = StepTween(begin: kStartValue, end: 0).animate(_countdownController);
+    _countdownAnim =
+        StepTween(begin: kStartValue, end: 0).animate(_countdownController);
 
-    _opacityController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _opacityController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
     _opacity = CurvedAnimation(parent: _opacityController, curve: Curves.linear)
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
@@ -88,7 +91,7 @@ class _SuccessfulWidgetState extends State<ErrorWidget> with TickerProviderState
             ),
             Text(widget.message,
                 style: TextStyle(
-                  color: context.textTheme().headline6?.color,
+                  color: context.textTheme().headlineSmall?.color,
                   fontWeight: FontWeight.normal,
                   fontSize: 14.0,
                 )),
@@ -97,7 +100,10 @@ class _SuccessfulWidgetState extends State<ErrorWidget> with TickerProviderState
               opacity: _opacity,
               child: Text(
                 _countdownAnim.value.toString(),
-                style: TextStyle(color: sceondaryColor, fontWeight: FontWeight.bold, fontSize: 25.0),
+                style: TextStyle(
+                    color: sceondaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25.0),
               ),
             ),
             const SizedBox(
@@ -110,7 +116,9 @@ class _SuccessfulWidgetState extends State<ErrorWidget> with TickerProviderState
   }
 
   void _startCountdown() {
-    if (_countdownController.isAnimating || _countdownController.isCompleted || !mounted) {
+    if (_countdownController.isAnimating ||
+        _countdownController.isCompleted ||
+        !mounted) {
       return;
     }
     _countdownController.addStatusListener((AnimationStatus status) {

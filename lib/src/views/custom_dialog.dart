@@ -33,7 +33,7 @@ class CustomAlertDialog extends StatelessWidget {
       children.add(new Padding(
         padding: titlePadding!,
         child: new DefaultTextStyle(
-          style: context.textTheme().headline6!,
+          style: context.textTheme().headlineSmall!,
           child: new Semantics(child: title, namesRoute: true),
         ),
       ));
@@ -43,7 +43,7 @@ class CustomAlertDialog extends StatelessWidget {
       child: new Padding(
         padding: contentPadding,
         child: new DefaultTextStyle(
-          style: context.textTheme().subtitle1!,
+          style: context.textTheme().bodyMedium!,
           child: content,
         ),
       ),
@@ -63,7 +63,9 @@ class CustomAlertDialog extends StatelessWidget {
                       horizontal: 10.0,
                       vertical: 20.0,
                     ),
-                    child: new Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+                    child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: children),
                   )
                 : new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +150,8 @@ class CustomDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new AnimatedPadding(
-      padding: MediaQuery.of(context).viewInsets + const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+      padding: MediaQuery.of(context).viewInsets +
+          const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
       duration: insetAnimationDuration,
       curve: insetAnimationCurve,
       child: new MediaQuery.removeViewInsets(
@@ -159,7 +162,11 @@ class CustomDialog extends StatelessWidget {
         context: context,
         child: new Center(
           child: new ConstrainedBox(
-            constraints: new BoxConstraints(minWidth: expanded ? math.min((MediaQuery.of(context).size.width - 40.0), 332.0) : 280.0),
+            constraints: new BoxConstraints(
+                minWidth: expanded
+                    ? math.min(
+                        (MediaQuery.of(context).size.width - 40.0), 332.0)
+                    : 280.0),
             child: new Material(
               elevation: 50.0,
               type: MaterialType.transparency,
