@@ -53,7 +53,8 @@ class CheckoutWidget extends StatefulWidget {
   _CheckoutWidgetState createState() => _CheckoutWidgetState(charge);
 }
 
-class _CheckoutWidgetState extends BaseState<CheckoutWidget> with TickerProviderStateMixin {
+class _CheckoutWidgetState extends BaseState<CheckoutWidget>
+    with TickerProviderStateMixin {
   static const tabBorderRadius = BorderRadius.all(Radius.circular(4.0));
   final Charge _charge;
   int? _currentIndex = 0;
@@ -77,7 +78,10 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget> with TickerProvider
     _initPaymentMethods();
     _currentIndex = _getCurrentTab();
     _showTabs = widget.method == CheckoutMethod.selectable ? true : false;
-    _tabController = TabController(vsync: this, length: _methodWidgets.length, initialIndex: _currentIndex!);
+    _tabController = TabController(
+        vsync: this,
+        length: _methodWidgets.length,
+        initialIndex: _currentIndex!);
     _tabController!.addListener(_indexChange);
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -136,18 +140,20 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget> with TickerProvider
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.translucent,
             child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10.0, horizontal: 10.0),
                 child: Column(
                   children: <Widget>[
-                    if(_selectedCheckout == null && _showTabs)
-                    CheckoutLanding(selectCheckoutMethod: _selectCheckoutMethod,),
-
-                    if(_selectedCheckout != null || _showTabs == false) 
-                    _showProcessingError()
-                        ? _buildErrorWidget()
-                        : _paymentSuccessful
-                            ? _buildSuccessfulWidget()
-                            : _methodWidgets[_currentIndex!].child,
+                    if (_selectedCheckout == null && _showTabs)
+                      CheckoutLanding(
+                        selectCheckoutMethod: _selectCheckoutMethod,
+                      ),
+                    if (_selectedCheckout != null || _showTabs == false)
+                      _showProcessingError()
+                          ? _buildErrorWidget()
+                          : _paymentSuccessful
+                              ? _buildSuccessfulWidget()
+                              : _methodWidgets[_currentIndex!].child,
                     const SizedBox(height: 20),
                     securedWidget
                   ],
@@ -169,7 +175,8 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget> with TickerProvider
             key: const Key("ChargeEmail"),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: context.textTheme().bodySmall?.color, fontSize: 12.0),
+            style: TextStyle(
+                color: context.textTheme().bodySmall?.color, fontSize: 12.0),
           ),
         if (!widget.hideAmount && !_charge.amount.isNegative)
           Row(
@@ -179,14 +186,19 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget> with TickerProvider
             children: <Widget>[
               Text(
                 'Pay',
-                style: TextStyle(fontSize: 14.0, color: context.textTheme().headline1?.color),
+                style: TextStyle(
+                    fontSize: 14.0,
+                    color: context.textTheme().displayLarge?.color),
               ),
               const SizedBox(
                 width: 5.0,
               ),
               Flexible(
                   child: Text(Utils.formatAmount(_charge.amount),
-                      style: TextStyle(fontSize: 15.0, color: context.textTheme().headline6?.color, fontWeight: FontWeight.bold)))
+                      style: TextStyle(
+                          fontSize: 15.0,
+                          color: context.textTheme().displaySmall?.color,
+                          fontWeight: FontWeight.bold)))
             ],
           )
       ],
@@ -195,7 +207,8 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget> with TickerProvider
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        if (_showTabs && _selectedCheckout != null) buildCheckoutMethods(accentColor),
+        if (_showTabs && _selectedCheckout != null)
+          buildCheckoutMethods(accentColor),
         Container(
           padding: const EdgeInsets.all(10.0),
           child: Row(
@@ -239,14 +252,16 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget> with TickerProvider
           isScrollable: false,
           unselectedLabelColor: context.colorScheme().onBackground,
           labelColor: accentColor,
-          indicatorColor: (!_processing) ? AppColors.primaryColor : Colors.transparent,
+          indicatorColor:
+              (!_processing) ? AppColors.primaryColor : Colors.transparent,
           onTap: (int index) {
             if (_processing) {
               return;
             }
             _tabController?.index = index;
           },
-          labelStyle: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500),
+          labelStyle:
+              const TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500),
           tabs: _methodWidgets.map<Tab>((MethodItem m) {
             return Tab(
               text: m.text,
@@ -431,7 +446,9 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget> with TickerProvider
     CheckoutResponse? response = _response;
     if (response == null) {
       response = CheckoutResponse.defaults();
-      response.method = _tabController!.index == 0 ? CheckoutMethod.card : CheckoutMethod.bank;
+      response.method = _tabController!.index == 0
+          ? CheckoutMethod.card
+          : CheckoutMethod.bank;
     }
     return response;
   }

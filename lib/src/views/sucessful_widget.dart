@@ -15,7 +15,8 @@ class SuccessfulWidget extends StatefulWidget {
   }
 }
 
-class _SuccessfulWidgetState extends State<SuccessfulWidget> with TickerProviderStateMixin {
+class _SuccessfulWidgetState extends State<SuccessfulWidget>
+    with TickerProviderStateMixin {
   final sizedBox = const SizedBox(height: 20.0);
   late AnimationController _mainController;
   late AnimationController _opacityController;
@@ -39,17 +40,20 @@ class _SuccessfulWidgetState extends State<SuccessfulWidget> with TickerProvider
       duration: new Duration(seconds: kStartValue),
     );
     _countdownController.addListener(() => setState(() {}));
-    _countdownAnim = new StepTween(begin: kStartValue, end: 0).animate(_countdownController);
+    _countdownAnim =
+        new StepTween(begin: kStartValue, end: 0).animate(_countdownController);
 
-    _opacityController = new AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _opacity = new CurvedAnimation(parent: _opacityController, curve: Curves.linear)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _opacityController.reverse();
-        } else if (status == AnimationStatus.dismissed) {
-          _opacityController.forward();
-        }
-      });
+    _opacityController = new AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    _opacity =
+        new CurvedAnimation(parent: _opacityController, curve: Curves.linear)
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              _opacityController.reverse();
+            } else if (status == AnimationStatus.dismissed) {
+              _opacityController.forward();
+            }
+          });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _startCountdown());
   }
@@ -94,7 +98,7 @@ class _SuccessfulWidgetState extends State<SuccessfulWidget> with TickerProvider
                 ? new Container()
                 : new Text('You paid ${Utils.formatAmount(widget.amount)}',
                     style: TextStyle(
-                      color: context.textTheme().headline6?.color,
+                      color: context.textTheme().headlineSmall?.color,
                       fontWeight: FontWeight.normal,
                       fontSize: 14.0,
                     )),
@@ -103,7 +107,10 @@ class _SuccessfulWidgetState extends State<SuccessfulWidget> with TickerProvider
               opacity: _opacity,
               child: new Text(
                 _countdownAnim.value.toString(),
-                style: TextStyle(color: sceondaryColor, fontWeight: FontWeight.bold, fontSize: 25.0),
+                style: TextStyle(
+                    color: sceondaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25.0),
               ),
             ),
             new SizedBox(
@@ -116,7 +123,9 @@ class _SuccessfulWidgetState extends State<SuccessfulWidget> with TickerProvider
   }
 
   void _startCountdown() {
-    if (_countdownController.isAnimating || _countdownController.isCompleted || !mounted) {
+    if (_countdownController.isAnimating ||
+        _countdownController.isCompleted ||
+        !mounted) {
       return;
     }
     _countdownController.addStatusListener((AnimationStatus status) {

@@ -15,7 +15,7 @@ dependencies:
   intl: ^0.17.0
   meta: ^1.8.0
   async: ^2.9.0
-  dio: ^4.0.6
+  dio: ^5.4.0
   pretty_dio_logger: ^1.1.1
   # dart_pg: ^1.2.0
   openpgp: ^3.7.2
