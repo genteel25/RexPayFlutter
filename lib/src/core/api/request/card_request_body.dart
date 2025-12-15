@@ -57,8 +57,18 @@ class CardRequestBody {
     return CardRequestBody(charge, authKeys);
   }
 
-  set otp(String value) => _otp = value;
-  set paymentId(String value) => _paymentId = value;
+  String? get paymentId => _paymentId;
+  String? get otp => _otp;
+
+  set otp(String value) {
+    _otp = value;
+    print('[CardRequestBody] otp set. length=${value.length}');
+  }
+
+  set paymentId(String value) {
+    _paymentId = value;
+    print('[CardRequestBody] paymentId set: $value');
+  }
 
   Map<String, dynamic> toChargeCardJson2() {
     return {
@@ -88,6 +98,7 @@ class CardRequestBody {
   }
 
   Future<Map<String, dynamic>> toAuthorizePaymentJson(AuthKeys authKeys) async {
+    print('[CardRequestBody] building authorize payload. paymentId=$_paymentId, hasOtp=${_otp != null && _otp!.isNotEmpty}');
     String encodedString = jsonEncode({"paymentId": _paymentId, "otp": _otp});
 
     String enc = await Crypto.encrypt(encodedString, authKeys.rexPayPublicKey);

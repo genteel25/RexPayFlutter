@@ -175,7 +175,10 @@ class _CardCheckoutState extends BaseCheckoutMethodState<CardCheckout> {
   }
 
   void confirmPayment() async {
+    print('[CardCheckout] confirmPayment tapped. isSubmittingOtp=$_isSubmittingOtp, otpLength=${otpController.text.length}');
+
     if (_formKey.currentState?.validate() == false) {
+      print('[CardCheckout] OTP validation failed. Current otpLength=${otpController.text.length}');
       return;
     }
     try {
@@ -185,9 +188,12 @@ class _CardCheckoutState extends BaseCheckoutMethodState<CardCheckout> {
         error = "";
       });
       _cardRequestBody?.otp = otpController.text;
+      print('[CardCheckout] OTP set on request body. ref=${widget.charge.reference}, paymentId=${_cardRequestBody?.paymentId}, otpLength=${otpController.text.length}');
+      print('[CardCheckout] Calling authorizeCharge for card OTP confirmation...');
       res = await widget.service.authorizeCharge(_cardRequestBody, widget.authKeys);
 
       if (res.responseCode == "00") {
+        print('[CardCheckout] authorizeCharge succeeded. responseCode=${res.responseCode}, paymentId=${res.paymentId}, rawKeys=${res.rawResponse?.keys.toList()}');
         onResponse(
           CheckoutResponse(
             message: "Payment Successful",
@@ -197,23 +203,28 @@ class _CardCheckoutState extends BaseCheckoutMethodState<CardCheckout> {
             serverResponse: res.rawResponse ?? {},
           ),
         );
+      } else {
+        print('[CardCheckout] authorizeCharge returned non-success responseCode=${res.responseCode}, paymentId=${res.paymentId}, rawResponse=${res.rawResponse}');
       }
     } on CustomException catch (e) {
       setState(() {
         error = e.message;
       });
+      print('[CardCheckout] CustomException in confirmPayment: ${e.message}');
     } catch (e) {
-      print(e);
+      print('[CardCheckout] Unexpected error in confirmPayment: $e');
     }
 
     setState(() {
       _isSubmittingOtp = false;
+      print('[CardCheckout] confirmPayment finished. isSubmittingOtp set to false.');
     });
   }
 
   void _chargeCard(Charge charge) async {
     try {
       TransactionApiResponse? res;
+      print('[CardCheckout] _chargeCard started. amount=${charge.amount}, reference=${charge.reference}, hasCard=${charge.card != null}');
       setState(() {
         _isInitiating = true;
         error = "";
@@ -224,9 +235,11 @@ class _CardCheckoutState extends BaseCheckoutMethodState<CardCheckout> {
       res = await widget.service.insertPublicKey(widget.authKeys);
 
       if (res.status == "UPLOADED") {
+        print('[CardCheckout] insertPublicKey succeeded with status=${res.status}');
         res = await widget.service.createPayment(_cardRequestBody, widget.authKeys);
 
         if (res.status == "CREATED" || res.status == "ONGOING") {
+          print('[CardCheckout] createPayment succeeded with status=${res.status}, reference=${res.reference}, clientId=${res.clientId}');
           chargeCardResponse = await widget.service.chargeCard(_cardRequestBody, widget.authKeys);
 
           if (chargeCardResponse?.responseCode == "T0") {
@@ -235,19 +248,28 @@ class _CardCheckoutState extends BaseCheckoutMethodState<CardCheckout> {
             setState(() {
               _isOtpUI = true;
             });
+            print('[CardCheckout] chargeCard returned T0. paymentId=${chargeCardResponse?.paymentId}, responseDescription=${chargeCardResponse?.responseDescription}. Switched to OTP UI.');
+          } else {
+            print('[CardCheckout] chargeCard returned non-T0 responseCode=${chargeCardResponse?.responseCode}, description=${chargeCardResponse?.responseDescription}, rawResponse=${chargeCardResponse?.rawResponse}');
           }
+        } else {
+          print('[CardCheckout] createPayment returned unexpected status=${res.status}, rawResponse=${res.rawResponse}');
         }
+      } else {
+        print('[CardCheckout] insertPublicKey returned unexpected status=${res.status}');
       }
     } on CustomException catch (e) {
       setState(() {
         error = e.message;
       });
+      print('[CardCheckout] CustomException in _chargeCard: ${e.message}');
     } catch (e) {
-      print(e);
+      print('[CardCheckout] Unexpected error in _chargeCard: $e');
     }
 
     setState(() {
       _isInitiating = false;
+      print('[CardCheckout] _chargeCard finished. isInitiating set to false.');
     });
   }
 }

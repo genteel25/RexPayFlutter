@@ -50,7 +50,9 @@ class CardService with BaseApiService implements CardServiceContract {
 
   @override
   Future<TransactionApiResponse> authorizeCharge(CardRequestBody? credentials, AuthKeys authKeys) async {
+    print('[CardService] authorizeCharge called. mode=${authKeys.mode}');
     Map<String, dynamic> cre = await credentials!.toAuthorizePaymentJson(authKeys);
+    print('[CardService] Sending OTP authorizeTransaction request to ${getBaseUrl(authKeys.mode)}cps/v1/authorizeTransaction');
 
     Response response = await apiPostRequests(
       "${getBaseUrl(authKeys.mode)}cps/v1/authorizeTransaction",
@@ -61,10 +63,13 @@ class CardService with BaseApiService implements CardServiceContract {
     var body = response.data;
 
     var statusCode = response.statusCode;
+    print('[CardService] authorizeCharge response received. statusCode=$statusCode');
     if (statusCode == HttpStatus.ok) {
       Map<String, dynamic> responseBody = await decryptCode(body["encryptedResponse"], authKeys);
+      print('[CardService] authorizeCharge decrypted response keys: ${responseBody.keys.toList()}');
       return TransactionApiResponse.fromAuthorizeCardMap(responseBody);
     } else {
+      print('[CardService] authorizeCharge failed. statusCode=$statusCode, body=$body');
       throw CustomException('validate charge transaction failed with '
           'status code: $statusCode and response: $body');
     }
