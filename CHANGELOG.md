@@ -1,3 +1,19 @@
+## 0.0.5
+
+* Add logging and user-facing error messages for bank transfer and USSD payments
+  - Log full bank and USSD flows (payment creation, charge, status checks) to help trace issues
+  - Surface backend error descriptions on the UI when bank/USSD operations fail or are pending
+
+### How to Update
+
+1. **Update the SDK**
+   - Pull the latest changes from your repository, or
+   - Update the package dependency to the latest version (0.0.5)
+
+2. **Rebuild the app**
+   - Clean the build cache
+   - Rebuild/reinstall the app on your test devices
+
 ## 0.0.4
 
 * Show OTP authorization errors on the Confirm Payment screen

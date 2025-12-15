@@ -216,25 +216,39 @@ class _USSDCheckoutState extends BaseCheckoutMethodState<USSDCheckout> {
         error = "";
       });
 
+      print('[USSDCheckout] Starting createPayment for USSD. reference=${widget.charge.reference}, amount=${widget.charge.amount}, bank=${_currentBank?.name}');
       response = await widget.service.createPayment(_ussdChargeRequestBody, widget.authKeys);
 
       if (response.status == "CREATED") {
+        print('[USSDCheckout] createPayment succeeded. status=${response.status}, reference=${response.reference}, paymentUrlReference=${response.paymentUrlReference}');
         _ussdChargeRequestBody.setPaymentUrlReference(response.paymentUrlReference ?? widget.charge.reference ?? "");
         response = await widget.service.chargeUSSD(_ussdChargeRequestBody, widget.authKeys);
 
         if (response.status == "ONGOING") {
+          print('[USSDCheckout] chargeUSSD succeeded with ONGOING status. providerResponse=${response.providerResponse}');
           setState(() {
             _ussdCode = response?.providerResponse ?? "";
             _isUSSDGenerated = true;
           });
           widget.onProcessingChange(true);
+        } else {
+          print('[USSDCheckout] chargeUSSD returned unexpected status=${response.status}, rawResponse=${response.rawResponse}');
+          setState(() {
+            error = response?.message ?? 'Unable to generate USSD code. Please try again.';
+          });
         }
       } else if (response.status == "ONGOING") {
+        print('[USSDCheckout] createPayment returned ONGOING status. providerResponse=${response.providerResponse}');
         setState(() {
           _ussdCode = response?.providerResponse ?? "";
           _isUSSDGenerated = true;
         });
         widget.onProcessingChange(true);
+      } else {
+        print('[USSDCheckout] createPayment returned unexpected status=${response.status}, rawResponse=${response.rawResponse}');
+        setState(() {
+          error = response?.message ?? 'Unable to initiate USSD payment. Please try again.';
+        });
       }
     } on CustomException catch (e) {
       print(e.message);
@@ -242,11 +256,12 @@ class _USSDCheckoutState extends BaseCheckoutMethodState<USSDCheckout> {
         error = e.message;
       });
     } catch (e) {
-      print(e);
+      print('[USSDCheckout] Unexpected error in _getUSSDDetails: $e');
     }
 
     setState(() {
       _isLoadingUSSDDetails = false;
+      print('[USSDCheckout] _getUSSDDetails finished. isLoadingUSSDDetails set to false.');
     });
   }
 
@@ -264,15 +279,17 @@ class _USSDCheckoutState extends BaseCheckoutMethodState<USSDCheckout> {
         error = "";
       });
 
+      print('[USSDCheckout] confirmPayment tapped. reference=${widget.charge.reference}');
       response = await widget.service.getPaymantDetails(widget.charge.reference!, widget.authKeys);
       // print("response.rawResponse");
       // print(response.rawResponse);
       if (response.responseCode == "02") {
+        print('[USSDCheckout] getPaymantDetails returned pending status. responseCode=${response.responseCode}, description=${response.responseDescription}, rawResponse=${response.rawResponse}');
         setState(() {
-          error = response?.responseDescription ?? "";
+          error = response?.responseDescription ?? response?.message ?? "";
         });
-      }
-      if (response.responseCode == "00") {
+      } else if (response.responseCode == "00") {
+        print('[USSDCheckout] getPaymantDetails returned success. responseCode=${response.responseCode}, description=${response.responseDescription}');
         widget.onResponse(CheckoutResponse(
           message: response.message ?? "",
           reference: response.reference,
@@ -280,6 +297,11 @@ class _USSDCheckoutState extends BaseCheckoutMethodState<USSDCheckout> {
           serverResponse: response.rawResponse ?? {},
           method: CheckoutMethod.USSD,
         ));
+      } else {
+        print('[USSDCheckout] getPaymantDetails returned non-success. responseCode=${response.responseCode}, description=${response.responseDescription}, status=${response.status}, rawResponse=${response.rawResponse}');
+        setState(() {
+          error = response?.responseDescription ?? response?.message ?? 'Unable to confirm USSD payment status. Please try again.';
+        });
       }
     } on CustomException catch (e) {
       print(e);
@@ -287,11 +309,12 @@ class _USSDCheckoutState extends BaseCheckoutMethodState<USSDCheckout> {
         error = e.message;
       });
     } catch (e) {
-      print(e);
+      print('[USSDCheckout] Unexpected error in confirmPayment: $e');
     }
 
     setState(() {
       _loading = false;
+      print('[USSDCheckout] confirmPayment finished. loading set to false.');
     });
   }
 }

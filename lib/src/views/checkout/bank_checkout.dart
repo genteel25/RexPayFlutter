@@ -221,29 +221,44 @@ class _BankCheckoutState extends BaseCheckoutMethodState<BankCheckout> {
         error = "";
       });
 
+      print('[BankCheckout] Starting createPayment for bank transfer. reference=${widget.charge.reference}, amount=${widget.charge.amount}');
       response = await widget.service.createPayment(_bankChargeRequestBody, widget.authKeys);
 
       if (response.status == "CREATED") {
+        print('[BankCheckout] createPayment succeeded. status=${response.status}, reference=${response.reference}, clientId=${response.clientId}');
         response = await widget.service.chargeBank(_bankChargeRequestBody, widget.authKeys);
 
         if (response.responseDescription == "Success") {
+          print('[BankCheckout] chargeBank succeeded. bankName=${response.bankName}, accountNumber=${response.accountNumber}, accountName=${response.accountName}');
           setState(() {
             _account = BankAccount(Bank(response?.bankName ?? "", 0, "", response?.bankName ?? ""), response!.accountNumber, response.accountName);
             _isAccountGenerated = true;
           });
           widget.onProcessingChange(true);
+        } else {
+          print('[BankCheckout] chargeBank returned non-success. responseCode=${response.responseCode}, responseDescription=${response.responseDescription}, rawResponse=${response.rawResponse}');
+          setState(() {
+            error = response?.responseDescription ?? response?.message ?? 'Unable to generate bank account details. Please try again.';
+          });
         }
+      } else {
+        print('[BankCheckout] createPayment returned unexpected status=${response.status}, rawResponse=${response.rawResponse}');
+        setState(() {
+          error = response?.message ?? 'Unable to initiate bank transfer payment. Please try again.';
+        });
       }
     } on CustomException catch (e) {
       setState(() {
         error = e.message;
       });
+      print('[BankCheckout] CustomException in _getPaymentBankDetails: ${e.message}');
     } catch (e) {
-      print(e);
+      print('[BankCheckout] Unexpected error in _getPaymentBankDetails: $e');
     }
 
     setState(() {
       _isLoadingBankDetails = false;
+      print('[BankCheckout] _getPaymentBankDetails finished. isLoadingBankDetails set to false.');
     });
   }
 
@@ -255,6 +270,7 @@ class _BankCheckoutState extends BaseCheckoutMethodState<BankCheckout> {
         error = "";
       });
 
+      print('[BankCheckout] confirmPayment tapped. reference=${widget.charge.reference}');
       response = await widget.service.getTransactionStatus(widget.charge.reference!, widget.authKeys);
 
       if (response.responseDescription == "Success") {
@@ -274,17 +290,25 @@ class _BankCheckoutState extends BaseCheckoutMethodState<BankCheckout> {
         //   _account = BankAccount(Bank(response!.accountNumber, 0), response.accountNumber, response.accountName);
         //   _isAccountGenerated = true;
         // });
-      } else {}
+        // Success path intentionally left for integration specifics.
+      } else {
+        print('[BankCheckout] getTransactionStatus returned non-success. responseCode=${response.responseCode}, responseDescription=${response.responseDescription}, status=${response.status}, rawResponse=${response.rawResponse}');
+        setState(() {
+          error = response?.responseDescription ?? response?.message ?? 'Unable to confirm bank transfer status. Please try again.';
+        });
+      }
     } on CustomException catch (e) {
       setState(() {
         error = e.message;
       });
+      print('[BankCheckout] CustomException in confirmPayment: ${e.message}');
     } catch (e) {
-      print(e);
+      print('[BankCheckout] Unexpected error in confirmPayment: $e');
     }
 
     setState(() {
       _loading = false;
+      print('[BankCheckout] confirmPayment finished. loading set to false.');
     });
   }
 
