@@ -44,7 +44,10 @@ class CardRequestBody {
         _email = charge.email,
         _amount = (charge.amount / 100).toStringAsFixed(2),
         _reference = charge.reference,
-        _transactionCharge = charge.transactionCharge != null && charge.transactionCharge! > 0 ? (charge.transactionCharge! / 100).toStringAsFixed(2) : null,
+        _transactionCharge =
+            charge.transactionCharge != null && charge.transactionCharge! > 0
+                ? (charge.transactionCharge! / 100).toStringAsFixed(2)
+                : null,
         _metadata = charge.metadata,
         _plan = charge.plan,
         _card = charge.card,
@@ -53,19 +56,20 @@ class CardRequestBody {
         _callBackUrl = charge.callBackUrl,
         _additionalParameters = charge.additionalParameters;
 
-  static Future<CardRequestBody> getChargeRequestBody(AuthKeys authKeys, Charge charge) async {
+  static Future<CardRequestBody> getChargeRequestBody(
+      AuthKeys authKeys, Charge charge) async {
     return CardRequestBody(charge, authKeys);
   }
 
-  String? get paymentId => _paymentId;
-  String? get otp => _otp;
+  String? get paymentId => _paymentId ?? "";
+  String? get otp => _otp ?? "";
 
-  set otp(String value) {
+  set otp(String? value) {
     _otp = value;
-    print('[CardRequestBody] otp set. length=${value.length}');
+    print('[CardRequestBody] otp set. length=${value?.length}');
   }
 
-  set paymentId(String value) {
+  set paymentId(String? value) {
     _paymentId = value;
     print('[CardRequestBody] paymentId set: $value');
   }
@@ -90,7 +94,6 @@ class CardRequestBody {
       }
     });
 
-    
     String enc = await Crypto.encrypt(encodedString, authKeys.rexPayPublicKey);
     return {
       "encryptedRequest": enc,
@@ -98,7 +101,8 @@ class CardRequestBody {
   }
 
   Future<Map<String, dynamic>> toAuthorizePaymentJson(AuthKeys authKeys) async {
-    print('[CardRequestBody] building authorize payload. paymentId=$_paymentId, hasOtp=${_otp != null && _otp!.isNotEmpty}');
+    print(
+        '[CardRequestBody] building authorize payload. paymentId=$_paymentId, hasOtp=${_otp != null && _otp!.isNotEmpty}');
     String encodedString = jsonEncode({"paymentId": _paymentId, "otp": _otp});
 
     String enc = await Crypto.encrypt(encodedString, authKeys.rexPayPublicKey);
@@ -120,8 +124,6 @@ class CardRequestBody {
       }
     };
   }
-
-  
 
   Map<String, String?> paramsMap() {
     // set values will override additional params provided

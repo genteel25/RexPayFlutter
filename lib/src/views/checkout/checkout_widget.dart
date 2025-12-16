@@ -366,6 +366,7 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
   }
 
   void _onPaymentResponse(CheckoutResponse response) {
+    // log("Pro")
     _response = response;
     if (!mounted) return;
     if (response.status == "SUCCESS") {

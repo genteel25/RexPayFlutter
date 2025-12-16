@@ -34,14 +34,15 @@ class _OtpWidgetState extends BaseState<OtpWidget> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                new Image.asset('assets/images/otp.png', width: 30.0, package: 'rexpay'),
+                new Image.asset('assets/images/otp.png',
+                    width: 30.0, package: 'rexpay'),
                 heightBox,
                 new Text(
                   widget.message!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    color: context.textTheme().headline6?.color,
+                    color: context.textTheme().headlineSmall?.color,
                     fontSize: 15.0,
                   ),
                 ),
