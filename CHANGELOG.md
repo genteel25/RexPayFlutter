@@ -1,3 +1,51 @@
+## 0.0.6
+
+* Include `cardDetails` in the card authorization (OTP) request payload
+  - Aligns the authorize call with the latest RexPay card API requirements
+  - Helps resolve \"AuthData Encryption Failed\" responses during OTP confirmation
+
+### How to Update
+
+1. **Update the SDK**
+   - Pull the latest changes from your repository, or
+   - Update the package dependency to the latest version (0.0.6)
+
+2. **Rebuild the app**
+   - Clean the build cache
+   - Rebuild/reinstall the app on your test devices
+
+## 0.0.5
+
+* Add logging and user-facing error messages for bank transfer and USSD payments
+  - Log full bank and USSD flows (payment creation, charge, status checks) to help trace issues
+  - Surface backend error descriptions on the UI when bank/USSD operations fail or are pending
+
+### How to Update
+
+1. **Update the SDK**
+   - Pull the latest changes from your repository, or
+   - Update the package dependency to the latest version (0.0.5)
+
+2. **Rebuild the app**
+   - Clean the build cache
+   - Rebuild/reinstall the app on your test devices
+
+## 0.0.4
+
+* Show OTP authorization errors on the Confirm Payment screen
+  - Surface `responseDescription`/`message` from `authorizeCharge` when response code is not `00`
+  - Fixes the UX where Confirm Payment appears to do nothing when backend rejects the OTP
+
+### How to Update
+
+1. **Update the SDK**
+   - Pull the latest changes from your repository, or
+   - Update the package dependency to the latest version (0.0.4)
+
+2. **Rebuild the app**
+   - Clean the build cache
+   - Rebuild/reinstall the app on your test devices
+
 ## 0.0.3
 
 * Added detailed logging for card payments and OTP confirmation

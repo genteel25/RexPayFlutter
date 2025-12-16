@@ -99,7 +99,20 @@ class CardRequestBody {
 
   Future<Map<String, dynamic>> toAuthorizePaymentJson(AuthKeys authKeys) async {
     print('[CardRequestBody] building authorize payload. paymentId=$_paymentId, hasOtp=${_otp != null && _otp!.isNotEmpty}');
-    String encodedString = jsonEncode({"paymentId": _paymentId, "otp": _otp});
+    // Include cardDetails for authorization as required by latest API spec
+    final cardDetails = {
+      "authDataVersion": "1",
+      "pan": _card?.number ?? "",
+      "expiryDate": "${_card?.expiryMonth}${_card?.expiryYear}",
+      "cvv2": _card?.cvc ?? "",
+      "pin": _card?.pin ?? "",
+    };
+
+    String encodedString = jsonEncode({
+      "paymentId": _paymentId,
+      "otp": _otp,
+      "cardDetails": cardDetails,
+    });
 
     String enc = await Crypto.encrypt(encodedString, authKeys.rexPayPublicKey);
     return {

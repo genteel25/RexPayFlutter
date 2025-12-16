@@ -204,7 +204,12 @@ class _CardCheckoutState extends BaseCheckoutMethodState<CardCheckout> {
           ),
         );
       } else {
-        print('[CardCheckout] authorizeCharge returned non-success responseCode=${res.responseCode}, paymentId=${res.paymentId}, rawResponse=${res.rawResponse}');
+        final displayMessage =
+            res.responseDescription ?? res.message ?? 'Authorization failed. Please try again.';
+        print('[CardCheckout] authorizeCharge returned non-success responseCode=${res.responseCode}, paymentId=${res.paymentId}, responseDescription=${res.responseDescription}, message=${res.message}, rawResponse=${res.rawResponse}');
+        setState(() {
+          error = displayMessage;
+        });
       }
     } on CustomException catch (e) {
       setState(() {
