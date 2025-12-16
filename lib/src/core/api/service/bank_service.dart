@@ -14,6 +14,7 @@ import 'package:rexpay/src/models/auth_keys.dart';
 class BankService with BaseApiService implements BankServiceContract {
   @override
   Future<TransactionApiResponse> getTransactionStatus(String transRef, AuthKeys authKeys) async {
+    print('[BankService] getTransactionStatus called. reference=$transRef, mode=${authKeys.mode}');
     Response response = await apiPostRequests(
       "${getBaseUrl(authKeys.mode)}cps/v1/getTransactionStatus",
       {"transactionReference": transRef},
@@ -23,9 +24,13 @@ class BankService with BaseApiService implements BankServiceContract {
     var body = response.data;
     var statusCode = response.statusCode;
 
+    print('[BankService] getTransactionStatus response. statusCode=$statusCode');
     if (statusCode == HttpStatus.ok) {
-      return TransactionApiResponse.fromGetTransactionStatus(body!);
+      final result = TransactionApiResponse.fromGetTransactionStatus(body!);
+      print('[BankService] getTransactionStatus parsed response. status=${result.status}, responseDescription=${result.responseDescription}, responseCode=${result.responseCode}');
+      return result;
     } else {
+      print('[BankService] getTransactionStatus failed. statusCode=$statusCode, body=$body');
       throw ChargeException('Bank transaction failed with '
           'status code: $statusCode and response: $body');
     }
@@ -34,6 +39,7 @@ class BankService with BaseApiService implements BankServiceContract {
   @override
   Future<TransactionApiResponse> chargeBank(BankChargeRequestBody? credentials, AuthKeys authKeys) async {
     try {
+      print('[BankService] chargeBank called. mode=${authKeys.mode}');
       Response response = await apiPostRequests(
         "${getBaseUrl(authKeys.mode)}cps/v1/initiateBankTransfer",
         credentials!.toChargeBankJson(),
@@ -43,13 +49,18 @@ class BankService with BaseApiService implements BankServiceContract {
       var body = response.data;
       var statusCode = response.statusCode;
 
+      print('[BankService] chargeBank response. statusCode=$statusCode');
       if (statusCode == HttpStatus.ok) {
-        return TransactionApiResponse.fromChargeCardMap(body!);
+        final result = TransactionApiResponse.fromChargeCardMap(body!);
+        print('[BankService] chargeBank parsed response. responseCode=${result.responseCode}, responseDescription=${result.responseDescription}, bankName=${result.bankName}, accountNumber=${result.accountNumber}');
+        return result;
       } else {
+        print('[BankService] chargeBank failed. statusCode=$statusCode, body=$body');
         throw ChargeException('Bank transaction failed with '
             'status code: $statusCode and response: $body');
       }
     } catch (e) {
+      print('[BankService] chargeBank threw error: $e');
       rethrow;
     }
   }
@@ -57,6 +68,7 @@ class BankService with BaseApiService implements BankServiceContract {
   @override
   Future<TransactionApiResponse> createPayment(BankChargeRequestBody? credentials, AuthKeys authKeys) async {
     try {
+      print('[BankService] createPayment called. mode=${authKeys.mode}');
       Response response = await apiPostRequests(
         "${getBaseUrl(authKeys.mode, type: 'pgs')}pgs/payment/v2/createPayment",
         credentials!.toInitialJson(),
@@ -66,13 +78,18 @@ class BankService with BaseApiService implements BankServiceContract {
       var body = response.data;
       var statusCode = response.statusCode;
 
+      print('[BankService] createPayment response. statusCode=$statusCode');
       if (statusCode == HttpStatus.ok) {
-        return TransactionApiResponse.fromCreateTransaction(body!);
+        final result = TransactionApiResponse.fromCreateTransaction(body!);
+        print('[BankService] createPayment parsed response. status=${result.status}, reference=${result.reference}, clientId=${result.clientId}');
+        return result;
       } else {
+        print('[BankService] createPayment failed. statusCode=$statusCode, body=$body');
         throw ChargeException('Bank transaction failed with '
             'status code: $statusCode and response: $body');
       }
     } catch (e) {
+      print('[BankService] createPayment threw error: $e');
       rethrow;
     }
   }
